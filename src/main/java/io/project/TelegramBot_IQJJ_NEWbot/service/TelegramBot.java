@@ -1,13 +1,14 @@
 package io.project.TelegramBot_IQJJ_NEWbot.service;
 
 import io.project.TelegramBot_IQJJ_NEWbot.config.BotConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+@Slf4j
 @Component
 public class TelegramBot extends TelegramLongPollingBot {
     BotConfig config;
@@ -36,14 +37,15 @@ public class TelegramBot extends TelegramLongPollingBot {
                     startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
                     break;
                 default:
-                    sendMessage(chatId,"Sorry... I don't understand you");
+                    sendMessage(chatId, "Sorry... I don't understand you");
             }
         }
     }
 
     private void startCommandReceived(long chatId, String name) {
         String answer = "Hello, " + name + ", nice to meet you!";
-        sendMessage(chatId,answer);
+        log.info("Replied to user " + name);
+        sendMessage(chatId, answer);
     }
 
     private void sendMessage(long chatId, String textToSend) {
@@ -53,7 +55,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             execute(message);
         } catch (TelegramApiException e) {
-            System.out.println("MISTAKE");
+            log.error("Error occurred: " + e.getMessage());
         }
     }
 }
