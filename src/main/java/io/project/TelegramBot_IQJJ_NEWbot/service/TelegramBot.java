@@ -13,6 +13,8 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.sql.Timestamp;
@@ -30,8 +32,8 @@ public class TelegramBot extends TelegramLongPollingBot {
             "You can execute commands from the main menu on the left or by typing a command:\n\n" +
             "Type /start to see a welcome message\n\n" +
             "Type /mydata to see data stored about yourself\n\n" +
-            "Type /deletedata to delete data stored about yourself\n\n"+
-            "Type /settings to see settings\n\n"+
+            "Type /deletedata to delete data stored about yourself\n\n" +
+            "Type /settings to see settings\n\n" +
             "Type /help to see this message again";
 
     public TelegramBot(BotConfig config) {
@@ -88,15 +90,45 @@ public class TelegramBot extends TelegramLongPollingBot {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(textToSend);
+
+        //подключаем кнопки-клавиатуру
+        ReplyKeyboardMarkup keyboardMarkup = getKeyboardMarkup();
+        message.setReplyMarkup(keyboardMarkup);
+//        executeMessage(message);
+
         try {
             execute(message);
         } catch (TelegramApiException e) {
             log.error("Error occurred: " + e.getMessage());
         }
     }
+
+    private  ReplyKeyboardMarkup getKeyboardMarkup() {
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        //делаем кнопки поменьше
+        keyboardMarkup.setResizeKeyboard(true);
+
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+        KeyboardRow row = new KeyboardRow();
+        row.add("weather");
+        row.add("get random joke");
+        //первая строка
+        keyboardRows.add(row);
+
+        row = new KeyboardRow();
+        row.add("register");
+        row.add("check my data");
+        row.add("delete my data");
+        //вторая строка
+        keyboardRows.add(row);
+        //добавляем  в keyboardMarkup строки
+        keyboardMarkup.setKeyboard(keyboardRows);
+        return keyboardMarkup;
+    }
+
     private void registerUser(Message msg) {
 
-        if(userRepository.findById(msg.getChatId()).isEmpty()){
+        if (userRepository.findById(msg.getChatId()).isEmpty()) {
 
             var chatId = msg.getChatId();
             var chat = msg.getChat();
@@ -114,4 +146,6 @@ public class TelegramBot extends TelegramLongPollingBot {
             log.info("user saved: " + user);
         }
     }
+
+
 }
